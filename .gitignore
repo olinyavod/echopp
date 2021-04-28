@@ -1,0 +1,11 @@
+.vs/
+out/
+build-rpi/
+build/
+bin/
+obj/
+VisualGDB/
+*.user
+CMakeSettings.json
+*.suo
+
