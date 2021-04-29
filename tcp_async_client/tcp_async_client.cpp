@@ -5,6 +5,8 @@
 
 #include <asio.hpp>
 
+#include "../utils.hpp"
+
 using asio::ip::tcp;
 using std::filesystem::path;
 using io_context_ptr = std::shared_ptr<asio::io_context>;
@@ -153,15 +155,23 @@ int main(int argc, char *argv[])
 {
 	try
 	{
-		const auto io_context = std::make_shared<asio::io_context>();
-		const std::uint16_t port = 9090;
-		const std::string host = "localhost";
-		const auto endpoints = resolve(*io_context, host, port);
-
-		for(int i = 1; i<argc; ++i)
+		if(argc < 2)
 		{
-			connection::start(io_context, endpoints, argv[i]);
+			client::print_usage(argv[0]);
+			return 1;
 		}
+		
+		const auto io_context = std::make_shared<asio::io_context>();
+		std::uint16_t port = 9090;
+		std::string host = "localhost";
+		std::vector<std::string> messages;
+				
+		client::parse_client_args(argc, argv, host, port, messages);
+
+		const auto endpoints = resolve(*io_context, host, port);
+		
+		for (auto& msg : messages)
+			connection::start(io_context, endpoints, msg);		
 		
 		io_context->run();
 		

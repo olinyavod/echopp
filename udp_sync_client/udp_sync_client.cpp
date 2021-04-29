@@ -4,6 +4,8 @@
 
 #include <asio.hpp>
 
+#include "../utils.hpp"
+
 using asio::ip::udp;
 using endpoint_iterator = udp::resolver::iterator;
 using asio::detail::thread_group;
@@ -54,20 +56,28 @@ int main(int argc, char* argv[])
 {
 	try 
 	{
+		if(argc < 2)
+		{
+			client::print_usage(argv[0]);
+			return 1;
+		}
+		
 		std::setlocale(LC_ALL, "");
 		
-		const std::string host = "localhost";
-		const std::uint16_t port = 9900;
-
+		std::string host = "localhost";
+		std::uint16_t port = 9900;
+		std::vector<std::string> messages;
+		
+		client::parse_client_args(argc, argv, host, port, messages);
+		
 		std::mutex mutex;
 		asio::io_context io_context;
 		auto endpoints = resolve(io_context, host, port);
 
 		thread_group threads;
 		
-		for(int i = 1; i<argc; i++)
+		for(auto& msg : messages)
 		{
-			const auto* msg = argv[i];
 			threads.create_thread([msg, &io_context, &endpoints, &mutex]()
 				{
 					try 

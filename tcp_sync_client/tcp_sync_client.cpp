@@ -1,23 +1,19 @@
 #include <iostream>
-#include <asio.hpp>
 #include <filesystem>
 #include <algorithm>
+#include <string>
 
-namespace fs = std::filesystem;
+#include <asio.hpp>
+
+#include "../utils.hpp"
 
 using asio::ip::tcp;
 using endpoints = tcp::resolver::iterator;
 using io_context_ptr = std::shared_ptr<asio::io_context>;
 
-void print_usage(const std::string& name)
-{
-	std::cout << "Usage " << name << "[options] messages...\n"
-		<< "\t-h - Hostname or address sent messages.\n"
-		<< "\t-p - Port for connection.\n";		
-}
-
-auto resolve(const io_context_ptr& io_context, const std::string& host,
-             const std::uint16_t port) -> endpoints
+auto resolve(const io_context_ptr& io_context, 
+	const std::string& host,
+	const std::uint16_t port) -> endpoints
 {
 	const tcp::resolver::query query(host, std::to_string(port));
 	tcp::resolver resolver(*io_context);
@@ -64,34 +60,18 @@ void sync_echo(const io_context_ptr& io_context,
 int main(int argc, char *argv[])
 {
 	try {
-		const auto app_name = fs::path(argv[0]).filename().string();
-		
 		if (argc < 2)
 		{
-			print_usage(app_name);
+			client::print_usage(argv[0]);
 			return 1;
 		}
 
 		std::uint16_t port = 9090;
 		std::string host = "localhost";
 
-		std::vector<char*> messages;
+		std::vector<std::string> messages;
 
-		for (int i = 1; i < argc; ++i)
-		{
-			if (std::strcmp(argv[i], "-p") == 0
-				&& ++i < argc)
-			{
-				port = std::atoi(argv[i]);
-			}
-			else if (std::strcmp(argv[i], "-h") == 0
-				&& ++i < argc)
-			{
-				host = argv[i];
-			}
-			else
-				messages.push_back(argv[i]);
-		}
+		client::parse_client_args(argc, argv, host, port, messages);
 
 		std::mutex write_mutex;
 		const auto io_context = std::make_shared<asio::io_context>();
