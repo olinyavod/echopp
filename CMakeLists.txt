@@ -20,3 +20,5 @@ add_subdirectory(udp_sync_client)
 add_subdirectory("udp_sync_server")
 
 add_subdirectory("udp_async_client")
+
+add_subdirectory("udp_async_server")

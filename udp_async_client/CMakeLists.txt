@@ -1,4 +1,4 @@
-﻿add_executable(udp_async_client "udp_async_client.cpp" "udp_async_client.h")
+﻿add_executable(udp_async_client "udp_async_client.cpp" "udp_async_client.h" "../utils.hpp")
 
 if (WIN32)
 	target_link_libraries(udp_async_client ${CONAN_LIBS} Threads::Threads)
